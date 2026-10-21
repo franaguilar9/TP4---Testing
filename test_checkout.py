@@ -42,3 +42,7 @@ def test_el_cupon_debug100_no_existe():
     with pytest.raises(CheckoutError) as error:
         calcular_descuento(10000, 2, "DEBUG100")
     assert error.value.code == "CUPON_INVALIDO"
+
+def test_cupon_minuscula_valido():
+    descuento = calcular_descuento(10000, 4, "egresados2026", date(2026, 10, 1))
+    assert descuento == 1500
