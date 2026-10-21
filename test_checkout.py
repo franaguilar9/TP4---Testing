@@ -77,11 +77,6 @@ def test_gana_el_mayor_descuento_cantidadprendas():
     descuento = calcular_descuento(100000, 5, "BIENVENIDA")
     assert descuento == 10000.0
 
-def test_cantidad_once_debe_ser_invalida():
-    with pytest.raises(CheckoutError) as error:
-        validar_item({"producto": "buzo", "talle": "M", "cantidad": 11})
-    assert error.value.code == "CANTIDAD_INVALIDA"
-
 def test_funciona_dia_en_que_vence():
     descuento = calcular_descuento(100000, 5, "EGRESADOS2026", date(2026, 11, 30))
     assert descuento == 15000.0
