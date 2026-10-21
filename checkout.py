@@ -36,7 +36,7 @@ def validar_item(item):
     if item["talle"] not in TALLES:
         raise CheckoutError("TALLE_INVALIDO", f"Talle inválido: {item['talle']}")
 
-    if not (1 <= item["cantidad"] < 10):
+    if not (1 <= item["cantidad"] <= 10):
         raise CheckoutError("CANTIDAD_INVALIDA", "La cantidad debe estar entre 1 y 10")
 
 
@@ -44,22 +44,25 @@ def calcular_subtotal(carrito):
     subtotal = 0
     for item in carrito:
         validar_item(item)
-        try:
-            precio = item.get("precio", CATALOGO[item["producto"]])
-        except:
-            continue
+        if item["producto"] in CATALOGO:
+            precio = CATALOGO[item["producto"]]
+        else:
+            raise CheckoutError("PRODUCTO_INEXISTENTE", "El producto no existe en el catalogo")
         subtotal += precio * item["cantidad"]
 
     return round(subtotal, 2)
 
 
-def calcular_descuento(subtotal, cantidad_prendas, cupon=None, fecha=date.today()):
+def calcular_descuento(subtotal, cantidad_prendas, cupon=None, fecha=None):
     descuento = 0
+
+    if fecha is None:
+        fecha = date.today()
 
     if cantidad_prendas >= 5:
         descuento += subtotal * 0.10
 
-    if cupon != None:
+    if cupon is not None:
         codigo = cupon.strip().upper()
 
         if codigo not in CUPONES:
@@ -68,7 +71,7 @@ def calcular_descuento(subtotal, cantidad_prendas, cupon=None, fecha=date.today(
         datos = CUPONES[codigo]
 
         if datos["tipo"] == "porcentaje":
-            if not fecha < datos["vence"]:
+            if not fecha <= datos["vence"]:
                 raise CheckoutError("CUPON_VENCIDO", "El cupón está vencido")
             descuento = max(descuento, subtotal * datos['valor'])
 
@@ -98,7 +101,13 @@ def calcular_envio(subtotal, zona):
     return ENVIOS[zona]
 
 
-def calcular_total(carrito, zona, cupon=None, fecha=date.today()):
+def calcular_total(carrito, zona, cupon=None, fecha=None):
+
+    if fecha is None:
+        fecha = date.today()
+    if not carrito:
+        raise CheckoutError("CARRITO_VACIO", "El carrito no debe estar vacio")
+
     subtotal = calcular_subtotal(carrito)
 
     prendas = 0
@@ -106,7 +115,7 @@ def calcular_total(carrito, zona, cupon=None, fecha=date.today()):
         prendas = prendas + item["cantidad"]
 
     descuento = calcular_descuento(subtotal, prendas, cupon, fecha)
-    envio = calcular_envio(subtotal, zona)
+    envio = calcular_envio(subtotal - descuento, zona)
     total = subtotal - descuento + envio
 
     resultado = {
