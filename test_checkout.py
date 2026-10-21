@@ -46,3 +46,9 @@ def test_el_cupon_debug100_no_existe():
 def test_cupon_minuscula_valido():
     descuento = calcular_descuento(10000, 4, "egresados2026", date(2026, 10, 1))
     assert descuento == 1500
+
+
+def test_calcular_envio_marte_falla_y_lanza_zona_invalida():
+    with pytest.raises(CheckoutError) as error:
+        calcular_envio(60000, "MARTE")
+    assert error.value.code == "ZONA_INVALIDA"
