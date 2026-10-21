@@ -27,3 +27,8 @@ def codigo_de_error(funcion, *args):
 
 def test_cantidad_cero_es_invalida():
     assert codigo_de_error(validar_item, item(cantidad=0)) == "CANTIDAD_INVALIDA"
+
+
+def test_gana_el_mayor_descuento_cupon():
+    descuento = calcular_descuento(100000, 6, "EGRESADOS2026", date(2026, 10, 1))
+    assert descuento == 15000.0
