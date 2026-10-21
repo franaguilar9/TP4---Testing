@@ -71,7 +71,7 @@ def calcular_descuento(subtotal, cantidad_prendas, cupon=None, fecha=date.today(
         if datos["tipo"] == "porcentaje":
             if not fecha < datos["vence"]:
                 raise CheckoutError("CUPON_VENCIDO", "El cupón está vencido")
-            descuento += subtotal * datos["valor"]
+            descuento = max(descuento, subtotal * datos['valor'])
 
         elif datos["tipo"] == "fijo":
             if subtotal < datos["minimo"]:
@@ -79,7 +79,7 @@ def calcular_descuento(subtotal, cantidad_prendas, cupon=None, fecha=date.today(
                     "CUPON_MINIMO_NO_ALCANZADO",
                     f"El cupón requiere una compra mínima de ${datos['minimo']}",
                 )
-            descuento += datos["valor"]
+            descuento = max(descuento, datos["valor"])
 
     return round(descuento, 2)
 
