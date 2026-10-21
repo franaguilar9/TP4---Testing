@@ -37,3 +37,8 @@ def test_gana_el_mayor_descuento_cupon():
 def test_con_5_prendas_se_aplica_el_10_por_ciento():
     descuento = calcular_descuento(10000, 5)
     assert descuento == 1000
+
+def test_el_cupon_debug100_no_existe():
+    with pytest.raises(CheckoutError) as error:
+        calcular_descuento(10000, 2, "DEBUG100")
+    assert error.value.code == "CUPON_INVALIDO"
