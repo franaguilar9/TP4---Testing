@@ -41,3 +41,32 @@ def test_una_ruta_inexistente_devuelve_404(url):
     status, cuerpo = pedir(url, "GET", "/api/v1/otra")
     assert status == 404
     assert cuerpo["error"]["code"] == "RUTA_INEXISTENTE"
+
+
+
+
+
+
+def test_un_error_de_negocio_devuelve_422_con_el_codigo_del_checkout(url):
+    cuerpo = compra(carrito=[{"producto": "buzo", "talle": "XXXL", "cantidad": 1}])
+
+    status, respuesta = pedir(url, "POST", RUTA, cuerpo)
+
+    assert status == 422
+    assert respuesta["error"]["code"] == "TALLE_INVALIDO"
+
+
+def test_un_cuerpo_que_no_es_json_devuelve_400_json_invalido(url):
+    status, respuesta = pedir(url, "POST", RUTA, crudo=b"{esto no es json")
+
+    assert status == 400
+    assert respuesta["error"]["code"] == "JSON_INVALIDO"
+
+
+
+
+def test_pedir_un_pedido_que_no_existe_devuelve_404_pedido_inexistente(url):
+    status, respuesta = pedir(url, "GET", f"{RUTA}/999")
+
+    assert status == 404
+    assert respuesta["error"]["code"] == "PEDIDO_INEXISTENTE"
